@@ -61,3 +61,62 @@ Route::get('/key', function () {
         'key' => $apiKey,
     ]);
 });
+
+Route::get('/display', function () {
+    $apiKey = DB::table('api_keys')->value('key');
+    return view('display')->with([
+        'key' => $apiKey,
+    ]);
+});
+
+Route::get('/subscribers', function () {
+    $apiKey = DB::table('api_keys')->value('key');
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $apiKey,
+        'Content-Type' => 'application/json',
+        'Accept' => 'application/json'
+    ])->get('https://connect.mailerlite.com/api/subscribers', []);
+
+    $subscribers = $response->json()['data'];
+    // $links = $response->json()['links'];
+    session([
+        'endpoint' => "https://connect.mailerlite.com/api/subscribers",
+    ]);
+
+    return view('subscribers', compact('subscribers'));
+});
+
+Route::get('/subscribers-next/{endpoint}', function ($endpoint, Illuminate\Http\Request $request) {
+    $apiKey = DB::table('api_keys')->value('key');
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $apiKey,
+        'Content-Type' => 'application/json',
+        'Accept' => 'application/json'
+    ])->get($endpoint, []);
+
+    // $subscribers = $response->json()['data'];
+    // $links = $response->json()['links'];
+    // session([
+    //     'reqformat' => 'Request: ' . json_encode($request->all()),
+    // ]);
+    $subscribers = $response->json()['data'];
+    $endpoint = $response->json()['links']['next'];
+    
+    $formattedData = [];
+    foreach ($subscribers as $subscriber) {
+        $formattedData[] = [
+            'email' => $subscriber['email'],
+            'fields.name' => $subscriber['fields.name'],
+            'fields.country' => $subscriber['fields.country'],
+            'subscribed_at' => $subscriber['subscribed_at'],
+            'subscribed_at' => $subscriber['subscribed_at'],
+        ];
+    }
+
+    return response()->json([
+        'data' => $formattedData,
+        'endpoint' => $endpoint,
+    ]);
+})->name('subscribers-next');
