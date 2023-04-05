@@ -43,10 +43,19 @@ Route::post('/save-api-key', function (Illuminate\Http\Request $request) {
     if ($response->failed() || $response->status() !== 200) {
         return redirect('/home')->with('error', 'Invalid API key! ' . json_encode($msg) . ' with status ' . $stat);
     }
+
+    DB::table('api_keys')->updateOrInsert(['key' => $apiKey], ['key' => $apiKey]);
     
     return redirect('/home')->with([
-        'success' => 'API key checks out! ' . json_encode($msg) . ' with status ' . $stat,
+        'success' => 'API key checks out!',
         'response' => json_encode($msg),
         'key' => $apiKey
     ]);
 })->name('save-api-key');
+
+Route::get('/key', function () {
+    $apiKey = DB::table('api_keys')->value('key');
+    return view('key')->with([
+        'key' => $apiKey,
+    ]);
+});
