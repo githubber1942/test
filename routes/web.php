@@ -19,6 +19,8 @@ Route::get('/', function () {
 });
 
 Route::get('/home', function () {
+    $apiKey = DB::table('api_keys')->value('key');
+    session(['key' => $apiKey]);
     return view('home');
 });
 

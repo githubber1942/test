@@ -24,7 +24,8 @@
         </style>
     </head>
     <body class="antialiased">
-        <h1>Check your API Key :) (At the moment overwrites the one api key that might exist on the database)</h1>
+        <h1>Check an API Key :)</h1>
+        <h4>(At the moment overwrites the one api key that might exist on the database)</h4>
         <form method="post" action="{{ route('save-api-key') }}">
             @csrf
             <label for="api_key">API Key:</label>
@@ -40,6 +41,9 @@
             <div class="alert alert-danger">
                 {{ session('error') }}
             </div>
+        @endif
+        @if(session('key'))
+            <p>Existing key loaded: {{ session('key') }}</p>;
         @endif
         @if(session('response'))
             <script>
