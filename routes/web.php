@@ -44,5 +44,9 @@ Route::post('/save-api-key', function (Illuminate\Http\Request $request) {
         return redirect('/home')->with('error', 'Invalid API key! ' . json_encode($msg) . ' with status ' . $stat);
     }
     
-    return redirect('/home')->with('success', 'API key checks out! ' . json_encode($msg) . ' with status ' . $stat);
+    return redirect('/home')->with([
+        'success' => 'API key checks out! ' . json_encode($msg) . ' with status ' . $stat,
+        'response' => json_encode($msg),
+        'key' => $apiKey
+    ]);
 })->name('save-api-key');

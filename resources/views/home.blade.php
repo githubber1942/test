@@ -41,5 +41,11 @@
                 {{ session('error') }}
             </div>
         @endif
+        @if(session('response'))
+            <script>
+                console.log(@json(json_decode(session('response'))));
+                console.log(@json(['key' => session('key')]));
+            </script>
+        @endif
     </body>
 </html>
