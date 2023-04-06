@@ -34,7 +34,6 @@
         @endif
 
         <form method="POST" action="/create-subscriber">
-            @csrf
     
             <label for="email">Email:</label>
             <input type="email" name="email" required>

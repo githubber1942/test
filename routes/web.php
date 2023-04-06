@@ -14,15 +14,20 @@ use Illuminate\Support\Facades\Http;
 |
 */
 
+function getAPI_Key() {
+    return DB::table('api_keys')->value('key');
+};
+
 Route::get('/', function () {
-    return view('welcome');
-});
+    return redirect('/home');
+    // return view('welcome');
+})->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
 Route::get('/home', function () {
     $apiKey = DB::table('api_keys')->value('key');
     session(['key' => $apiKey]);
     return view('home');
-});
+})->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
 Route::post('/save-api-key', function (Illuminate\Http\Request $request) {
     $apiKey = $request->input('api_key');
@@ -53,25 +58,25 @@ Route::post('/save-api-key', function (Illuminate\Http\Request $request) {
         'response' => json_encode($msg),
         'key' => $apiKey
     ]);
-})->name('save-api-key');
+})->name('save-api-key')->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
 Route::get('/key', function () {
     $apiKey = DB::table('api_keys')->value('key');
     return view('key')->with([
         'key' => $apiKey,
     ]);
-});
+})->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
 Route::get('/display', function () {
     $apiKey = DB::table('api_keys')->value('key');
     return view('display')->with([
         'key' => $apiKey,
     ]);
-});
+})->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
 Route::get('/newsubscribers', function () {
     return view('newsubscribers');
-});
+})->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
 Route::get('/newsubscribers/data', function () {
     $apiKey = DB::table('api_keys')->value('key');
@@ -108,14 +113,14 @@ Route::get('/newsubscribers/data', function () {
         'meta' => $meta,
         'links' => $links,
     ]);
-})->name('newsubscribers.data');
+})->name('newsubscribers.data')->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
 Route::get('/subscribers1', function () {
     session([
         'thisy' => "https://connect.mailerlite.com/api/subscribers"
     ]);
     return view('subscribers1');
-});
+})->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
 // Attempted to use an optional parameter to make requests to a different enpoint everytime (using response's links.next). Didn't manage to pass an optional parameter in any way
 Route::get('/subscribers1/data/{endpointy?}', function ($endpointy = "https://connect.mailerlite.com/api/subscribers") {
@@ -174,7 +179,7 @@ Route::get('/subscribers1/data/{endpointy?}', function ($endpointy = "https://co
     ]);
 
     // return compact('subscribers');
-})->name('subscribers1.data');
+})->name('subscribers1.data')->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
 Route::get('/subscribers', function () {
     $apiKey = DB::table('api_keys')->value('key');
@@ -192,7 +197,7 @@ Route::get('/subscribers', function () {
     ]);
 
     return view('subscribers', compact('subscribers'));
-});
+})->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
 Route::get('/subscribers-next/{endpoint}', function ($endpoint, Illuminate\Http\Request $request) {
     $apiKey = DB::table('api_keys')->value('key');
@@ -226,11 +231,11 @@ Route::get('/subscribers-next/{endpoint}', function ($endpoint, Illuminate\Http\
         'data' => $formattedData,
         'endpoint' => $endpoint,
     ]);
-})->name('subscribers-next');
+})->name('subscribers-next')->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
 Route::get('create-subscriber', function () {
     return view('create-subscriber');
-});
+})->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
 Route::post('create-subscriber', function (Illuminate\Http\Request $request) {
     $apiKey = DB::table('api_keys')->value('key');
@@ -290,7 +295,7 @@ Route::post('create-subscriber', function (Illuminate\Http\Request $request) {
         'response' => $body,
         'status' => $response->status(),
     ]);
-});
+})->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
 Route::post('edit-subscriber', function (Illuminate\Http\Request $request) {
     $apiKey = DB::table('api_keys')->value('key');
@@ -341,7 +346,7 @@ Route::post('edit-subscriber', function (Illuminate\Http\Request $request) {
         'response' => $body,
         'status' => $response->status(),
     ]);
-})->name('edit-subscriber');
+})->name('edit-subscriber')->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
 Route::post('delete-subscriber', function () {
     $apiKey = DB::table('api_keys')->value('key');
@@ -376,4 +381,4 @@ Route::post('delete-subscriber', function () {
         'response' => $body,
         'status' => $response->status(),
     ]);
-});
+})->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);

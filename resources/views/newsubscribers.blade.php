@@ -3,7 +3,6 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>Subscribers</title>
 
         <!-- Fonts -->
@@ -43,7 +42,6 @@
         </table>
         
         <form id="edit-form" method="post" action="{{ route('edit-subscriber') }}">
-            @csrf
             <div>
                 <label for="name">Name:</label>
                 <input type="text" id="name" name="name" required>
@@ -74,7 +72,7 @@
                         { data: 'name' },
                         { data: 'country' },
                         { data: 'subscribed_at', render: function(data, type, row, meta) {
-                            return moment(data).format('YYYY-MM-DD');
+                            return moment(data).format('DD/MM/YYYY');
                         } },
                         { data: 'subscribed_at', render: function(data, type, row, meta) {
                             return moment(data).format('HH:mm:ss');
@@ -86,17 +84,12 @@
                     initComplete: function (settings, json) {
                         console.log(json);
                     },
-                    // "paging": true,
-                    // "pageLength": 10
                 });
                 $('#subscribers-table').on('click', 'button.delete', function () {
                     let id = $(this).data('id');
                     $.ajax({
                         type: 'POST',
                         url: '/delete-subscriber',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
                         data: { id: id },
                         success: function () {
                             // Delete and table refresh without redirect

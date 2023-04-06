@@ -29,7 +29,6 @@
         <h1>Check an API Key :)</h1>
         <h4>(At the moment every working attempt overwrites the one api key that might exist on the database)</h4>
         <form method="post" action="{{ route('save-api-key') }}">
-            @csrf
             <label for="api_key">API Key:</label>
             <input type="text" id="api_key" name="api_key" required>
             <button type="submit">Save</button>
