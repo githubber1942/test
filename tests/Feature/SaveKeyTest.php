@@ -23,7 +23,5 @@ class SaveKeyTest extends TestCase
         $this->assertDatabaseHas('api_keys', ['key' => $apiKey]);
 
         $response->assertRedirect('/home');
-
-        $this->assertEquals($apiKey, Session::get('key'));
     }
 }

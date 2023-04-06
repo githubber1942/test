@@ -54,7 +54,7 @@
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email">
             </div>
-            <button type="submit">Save</button>
+            <button type="submit">Edit</button>
         </form>
         
         <script>

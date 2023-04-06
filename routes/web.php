@@ -14,10 +14,6 @@ use Illuminate\Support\Facades\Http;
 |
 */
 
-function getAPI_Key() {
-    return DB::table('api_keys')->value('key');
-};
-
 Route::get('/', function () {
     return redirect('/home');
     // return view('welcome');
