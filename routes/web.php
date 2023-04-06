@@ -69,10 +69,6 @@ Route::get('/display', function () {
     ]);
 });
 
-// use Illuminate\Pagination\LengthAwarePaginator;
-// use Illuminate\Pagination\Paginator;
-
-// Route::get('/newsubscribers', function (\Illuminate\Http\Request $request) {
 Route::get('/newsubscribers', function () {
     return view('newsubscribers');
 });
@@ -95,6 +91,66 @@ Route::get('/newsubscribers/data', function () {
         $formattedData[] = [
             'id' => $subscriber['id'],
             'email' => $subscriber['email'],
+            'name' => $subscriber['fields']['name'],
+            'country' => $subscriber['fields']['country'],
+            'subscribed_at' => $subscriber['subscribed_at'],
+            'subscribed_at' => $subscriber['subscribed_at'],
+        ];
+    }
+
+    session([
+        'meta' => $meta,
+        'links' => $links,
+    ]);
+
+    return response()->json([
+        'data' => $formattedData,
+        'meta' => $meta,
+        'links' => $links,
+    ]);
+})->name('newsubscribers.data');
+
+Route::get('/subscribers1', function () {
+    session([
+        'thisy' => "https://connect.mailerlite.com/api/subscribers"
+    ]);
+    return view('subscribers1');
+});
+
+// Attempted to use an optional parameter to make requests to a different enpoint everytime (using response's links.next). Didn't manage to pass an optional parameter in any way
+Route::get('/subscribers1/data/{endpointy?}', function ($endpointy = "https://connect.mailerlite.com/api/subscribers") {
+    $apiKey = DB::table('api_keys')->value('key');
+
+    $received = $endpointy;
+    $booly = false;
+    if ($endpointy !== "https://connect.mailerlite.com/api/subscribers") {
+        $booly = true;
+    }
+
+    $endpoint = session('thisy');
+    $was = true;
+    if ($endpoint !== "https://connect.mailerlite.com/api/subscribers") {
+        $endpoint = "https://connect.mailerlite.com/api/subscribers";
+        $was = false;
+    } 
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $apiKey,
+        'Content-Type' => 'application/json',
+        'Accept' => 'application/json'
+    ])->get($endpoint, []);
+
+    $subscribers = $response->json()['data'];
+    $meta = json_encode($response->json()['meta']);
+    $links = json_encode($response->json()['links']);
+    $next = $response->json()['links']['next'];
+    
+    $formattedData = [];
+    foreach ($subscribers as $subscriber) {
+        $formattedData[] = [
+            'id' => $subscriber['id'],
+            'email' => $subscriber['email'],
+            'bool' => $received,
             // 'fields.name' => $subscriber['fields.name'],
             // 'fields.country' => $subscriber['fields.country'],
             // 'subscribed_at' => $subscriber['subscribed_at'],
@@ -102,15 +158,23 @@ Route::get('/newsubscribers/data', function () {
         ];
     }
 
+    session([
+        'meta' => $meta,
+        'links' => $links,
+        'thisy' => $next,
+        // 'nextw' => $nextw,
+    ]);
+
     return response()->json([
         'data' => $formattedData,
         'meta' => $meta,
         'links' => $links,
+        'next' => $next,
+        // 'reqreq' => $request['headers']->json(),
     ]);
 
-    // return view('newsubscribers', ['paginatedSubscribers' => $paginator]);
-    return compact('subscribers');
-})->name('subscribers.data');
+    // return compact('subscribers');
+})->name('subscribers1.data');
 
 Route::get('/subscribers', function () {
     $apiKey = DB::table('api_keys')->value('key');
@@ -277,39 +341,21 @@ Route::post('edit-subscriber', function (Illuminate\Http\Request $request) {
         'response' => $body,
         'status' => $response->status(),
     ]);
-});
+})->name('edit-subscriber');
 
-Route::post('delete-subscriber', function (Illuminate\Http\Request $request) {
+Route::post('delete-subscriber', function () {
     $apiKey = DB::table('api_keys')->value('key');
 
-    $email = $request->input('email');
-    $name = $request->input('name');
-    $country = $request->input('country');
-
-    $response = Http::withHeaders([
-        'Authorization' => 'Bearer ' . $apiKey,
-        'Content-Type' => 'application/json',
-        'Accept' => 'application/json'
-    ])->get('https://connect.mailerlite.com/api/subscribers/' . $email, []);
-
-    $resp = $response->json();
-    $body = json_encode($resp);
-    $status = $response->status();
-
-    if ($status !== 200) {
-        return back()->with([
-            'error' => 'An error occurred while fetching the subscriber.',
-            'response' => $body,
-            'status' => $status,
-        ]);
-    }
+    $id = request('id');
     
-    $id = $resp['data']['id'];
     $response = Http::withHeaders([
         'Authorization' => 'Bearer ' . $apiKey,
         'Content-Type' => 'application/json',
         'Accept' => 'application/json',
     ])->delete('https://connect.mailerlite.com/api/subscribers/' . $id, []);
+
+
+    $body = $response->json();
 
     if ($response->status() == 204) {
         return back()->with([
@@ -318,7 +364,6 @@ Route::post('delete-subscriber', function (Illuminate\Http\Request $request) {
             'status' => $response->status(),
         ]);
     }
-
     if ($response->status() == 404) {
         return back()->with([
             'error' => 'Subscriber not found',

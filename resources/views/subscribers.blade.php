@@ -30,17 +30,6 @@
                     <th>Subscribe Time</th>
                 </tr>
             </thead>
-            <tbody>
-                @foreach ($subscribers as $subscriber)
-                    <tr>
-                        <td>{{ $subscriber['email'] }}</td>
-                        <td>{{ $subscriber['fields']['name'] }} {{ $subscriber['fields']['last_name'] }}</td>
-                        <td>{{ $subscriber['fields']['country'] }}</td>
-                        <td>{{ date('Y-m-d', strtotime($subscriber['subscribed_at'])) }}</td>
-                        <td>{{ date('H:i:s', strtotime($subscriber['subscribed_at'])) }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
         </table>
         
         <script>
@@ -57,9 +46,7 @@
                     },
                     columns: [
                         { data: 'email' },
-                        { data: 'fields.name', render: function(data, type, row, meta) {
-                            return data + ' ' + row.fields.last_name;
-                        } },
+                        { data: 'fields.name' },
                         { data: 'fields.country' },
                         { data: 'subscribed_at', render: function(data, type, row, meta) {
                             return moment(data).format('YYYY-MM-DD');
